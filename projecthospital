@@ -1,0 +1,39 @@
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+
+
+patients = []
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form['name']
+        age = request.form['age']
+        disease = request.form['disease']
+        patients.append({'name': name, 'age': age, 'disease': disease})
+        return redirect(url_for('view_patients'))
+    return render_template('register.html')
+
+@app.route('/patients')
+def view_patients():
+    return render_template('patients.html', patients=patients)
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    found_patient = None
+    if request.method == 'POST':
+        name = request.form['name']
+        for patient in patients:
+            if patient['name'].lower() == name.lower():
+                found_patient = patient
+                break
+    return render_template('search.html', patient=found_patient)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
